@@ -1,0 +1,23 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Safari East Africa"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [28.0, -12.5],
+            [42.5, -12.5],
+            [42.5, 5.5],
+            [28.0, 5.5],
+            [28.0, -12.5]
+          ]
+        ]
+      }
+    }
+  ]
+}

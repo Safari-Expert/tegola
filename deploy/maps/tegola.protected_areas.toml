@@ -1,0 +1,45 @@
+[webserver]
+port = ":8080"
+
+  [webserver.headers]
+  Access-Control-Allow-Origin = "*"
+  Access-Control-Allow-Methods = "GET, OPTIONS"
+  Cache-Control = "s-maxage=300"
+
+[[providers]]
+name = "protected"
+type = "mvt_postgis"
+uri = "${POSTGIS_URI}"
+srid = 4326
+
+  [[providers.layers]]
+  name = "protected_areas"
+  geometry_fieldname = "geom"
+  geometry_type = "multipolygon"
+  id_fieldname = "id"
+  sql = """
+    SELECT
+      abs(area_id)::bigint AS id,
+      area_id AS osm_id,
+      name,
+      boundary,
+      leisure,
+      protect_class,
+      protection_title,
+      operator,
+      designation,
+      ST_AsMVTGeom(geom, !BBOX!) AS geom
+    FROM gis.protected_areas
+    WHERE geom && !BBOX!
+  """
+
+[[maps]]
+name = "protected_areas"
+attribution = "© OpenStreetMap contributors"
+bounds = [28.0, -12.5, 42.5, 5.5]
+center = [34.8888, -6.3690, 5.0]
+
+  [[maps.layers]]
+  provider_layer = "protected.protected_areas"
+  min_zoom = 0
+  max_zoom = 14

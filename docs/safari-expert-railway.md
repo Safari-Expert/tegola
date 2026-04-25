@@ -15,9 +15,11 @@ Set these Tegola service variables in Railway:
 - `PORT=8080`
 - `TEGOLA_BIND_HOST=::`
 - `TEGOLA_CONFIG_URL=https://.../config.toml` or `TEGOLA_CONFIG=/opt/tegola_config/config.toml`
-- Any provider variables referenced by the Tegola config, for example PostGIS connection variables.
+- `POSTGIS_URI=postgres://...` for the protected-area PostGIS provider
 
 If using a mounted config file, mount it at `/opt/tegola_config/config.toml` or set `TEGOLA_CONFIG` to the mounted path.
+
+For the self-hosted map POC, the Tegola config should expose the `protected_areas` map from `deploy/maps/tegola.protected_areas.toml`. The Protomaps PMTiles basemap is served separately as a static asset through `global-router` at `/map-assets/east-africa.pmtiles`.
 
 ## Router
 
@@ -34,6 +36,18 @@ TEGOLA_URL=http://tegola.railway.internal:8080
 ```
 
 The router strips `/tegola/` before proxying. It also maps `/tegola/maps/{mapName}` to Tegola's native `/capabilities/{mapName}.json` endpoint so frontend clients can use the POC TileJSON path consistently.
+
+The router also serves self-hosted basemap assets from:
+
+```text
+https://dev.meistercrm.com/map-assets
+```
+
+Mount the generated map asset directory into `global-router` and set:
+
+```text
+MAP_ASSETS_ROOT=/opt/map-assets
+```
 
 ## CI Deploy
 
@@ -55,6 +69,7 @@ After deploying Tegola and global-router, these should pass:
 
 ```sh
 curl -i https://dev.meistercrm.com/tegola/capabilities
-curl -i https://dev.meistercrm.com/tegola/maps/{mapName}
-curl -i https://dev.meistercrm.com/tegola/maps/{mapName}/0/0/0.pbf
+curl -i https://dev.meistercrm.com/tegola/maps/protected_areas
+curl -i https://dev.meistercrm.com/tegola/maps/protected_areas/5/19/16.pbf
+curl -I -H 'Range: bytes=0-1023' https://dev.meistercrm.com/map-assets/east-africa.pmtiles
 ```

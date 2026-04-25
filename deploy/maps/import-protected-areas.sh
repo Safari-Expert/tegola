@@ -9,6 +9,7 @@ pg_port="${PGPORT:-55432}"
 pg_database="${PGDATABASE:-gis}"
 pg_user="${PGUSER:-postgres}"
 pg_password="${PGPASSWORD:-postgres}"
+pg_sslmode="${PGSSLMODE:-disable}"
 osm2pgsql_image="${OSM2PGSQL_IMAGE:-iboates/osm2pgsql:latest}"
 postgres_image="${POSTGRES_IMAGE:-postgres:16-alpine}"
 
@@ -21,6 +22,7 @@ mkdir -p "${data_dir}"
 run_psql() {
   docker run --rm --network=host \
     -e PGPASSWORD="${pg_password}" \
+    -e PGSSLMODE="${pg_sslmode}" \
     "${postgres_image}" \
     psql \
       -h "${pg_host}" \
@@ -62,6 +64,7 @@ for country_index in "${!countries[@]}"; do
   echo "Importing protected areas from ${country}"
   docker run --rm --network=host \
     -e PGPASSWORD="${pg_password}" \
+    -e PGSSLMODE="${pg_sslmode}" \
     -v "${data_dir}:/data:ro" \
     -v "${script_dir}:/maps:ro" \
     "${osm2pgsql_image}" \
